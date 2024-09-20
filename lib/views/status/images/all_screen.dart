@@ -1,11 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:wa_status_downloader/utils/custom_page_route.dart';
-import 'package:wa_status_downloader/views/status/status_image_screen.dart';
+import 'package:wa_status_downloader/views/status/images/one_screen.dart';
 
-class StatusImagesScreen extends StatelessWidget {
-  const StatusImagesScreen({super.key});
+class AllImagesScreen extends StatelessWidget {
+  const AllImagesScreen({super.key});
 
   Future<List<FileSystemEntity>> getFiles() async {
     // Chemin vers le dossier des statuts
@@ -13,20 +14,12 @@ class StatusImagesScreen extends StatelessWidget {
         '/storage/emulated/0/Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Statuses');
     if (await statusDir.exists()) {
       List<FileSystemEntity> files = [];
-      for (var file in await statusDir.listSync()) {
+      for (var file in statusDir.listSync().reversed) {
         if (file.path.endsWith(".jpg")) {
           files.add(file);
         }
       }
       return files;
-      /*for (var file in files) {
-        if (file is File) {
-          // Copier chaque fichier de statut dans un autre dossier
-          Directory? appDocDir = await getExternalStorageDirectory();
-          String newPath = '${appDocDir!.path}/${file.uri.pathSegments.last}';
-          await file.copy(newPath);
-        }
-      }*/
     } else {
       return [];
     }
@@ -40,6 +33,7 @@ class StatusImagesScreen extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
+          print(snapshot.error.toString());
           return const Scaffold(
             body: Padding(
                 padding: EdgeInsets.all(10),
@@ -60,7 +54,7 @@ class StatusImagesScreen extends StatelessWidget {
                 .map((e) => InkWell(
                       onTap: () {
                         Navigator.of(context)
-                            .push(customPageRoute(StatusImageScreen(
+                            .push(customPageRoute(OneImageScreen(
                           path: e.path,
                         )));
                       },
